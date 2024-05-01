@@ -1,11 +1,5 @@
 import random
 
-# this is simply a python implementation of a standard Mersenne Twister PRNG.
-# the parameters used, implement the MT19937 variant of the PRNG, based on the
-# Mersenne prime 2^19937−1
-# see https://en.wikipedia.org/wiki/Mersenne_Twister for a very good explanation
-# of the math behind this...
-
 class mt19937():
     w, n, m, r = 32, 624, 397, 31
     f = 1812433253
@@ -32,10 +26,6 @@ class mt19937():
             self.twist()
             self.index = 0
         y = self.MT[self.index]
-        # this implements the so-called "tempering matrix"
-        # this, functionally, should alter the output to
-        # provide a better, higher-dimensional distribution
-        # of the most significant bits in the numbers extracted
         y = y ^ ((y >> self.u) & self.d)
         y = y ^ ((y << self.s) & self.b)
         y = y ^ ((y << self.t) & self.c)
@@ -51,19 +41,6 @@ class mt19937():
                 xA = xA ^ self.a
             self.MT[i] = self.MT[(i + self.m) % self.n] ^ xA
 
-
-# so... guess what! while it isn't necessarily obvious, the
-# functioning of the tempering matrix are mathematically
-# reversible. this function impliments that...
-#
-# by using this, we can take the output of the MT PRNG, and turn
-# it back into the actual values held within the MT[] array itself
-# and therefore, we can "clone" the state of the PRNG from "n"
-# generated random numbers...
-#
-# initially, figuring out the math to do this made my brain hurt.
-# simplifying it caused even more pain.
-# please don't ask me to explain it...
 def untemper(y):
     y ^= y >> mt19937.l
     y ^= y << mt19937.t & mt19937.c
@@ -73,20 +50,16 @@ def untemper(y):
         y ^= y >> mt19937.u & mt19937.d
     return y
 
-
 if __name__ == "__main__":
     # create our own version of an MT19937 PRNG.
     myprng = mt19937(0)
 
-    # fire up Python's built-in PRNG and seed it with the time...
     print("Seeding Python's built-in PRNG with the time...")
-
-    # generate some random numbers so we can create a random number of random numbers using Python's built-in PRNG
-    # so random...
 
     print("Generating %i random numbers.\nWe'll use those values to create a clone of the current state of Python's built-in PRNG..." % (mt19937.n))
     for i in range(mt19937.n):
         myprng.MT[i] = untemper(random.randrange(0xFFFFFFFF))
+    #print(myprng.MT)
 
     print("Now, we'll test the clone...")
     print("\nPython       Our clone")
