@@ -7,28 +7,25 @@ import random
 # of the math behind this...
 
 class mt19937():
+    w, n, m, r = 32, 624, 397, 31
+    f = 1812433253
+    a = 0x9908B0DF
     u, d = 11, 0xFFFFFFFF
     s, b = 7, 0x9D2C5680
     t, c = 15, 0xEFC60000
     l = 18
-    n = 624
 
     def my_int32(self, x):
         return(x & 0xFFFFFFFF)
 
     def __init__(self, seed):
-        w = 32
-        r = 31
-        f = 1812433253
-        self.m = 397
-        self.a = 0x9908B0DF
         self.MT = [0] * self.n
         self.index = self.n + 1
-        self.lower_mask = (1 << r) - 1
+        self.lower_mask = (1 << self.r) - 1
         self.upper_mask = self.my_int32(~self.lower_mask)
         self.MT[0] = self.my_int32(seed)
         for i in range(1, self.n):
-            self.MT[i] = self.my_int32((f * (self.MT[i - 1] ^ (self.MT[i - 1] >> (w - 2))) + i))
+            self.MT[i] = self.my_int32((self.f * (self.MT[i - 1] ^ (self.MT[i - 1] >> (self.w - 2))) + i))
 
     def extract_number(self):
         if self.index >= self.n:
